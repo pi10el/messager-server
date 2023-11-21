@@ -1,7 +1,9 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
+  Patch,
   Post,
   UploadedFile,
   UseGuards,
@@ -14,15 +16,32 @@ import { UploadAvatarDto } from './dto/upload-avatar.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UserId } from 'src/common/decorators/user-id.decorator';
 import { fileStorage } from '../image/storage';
-import { Roles } from 'src/common/decorators/roles.decorator';
-import { UserRole } from '@prisma/client';
-import { RolesGuard } from '../auth/guards/roles.guard';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('user')
 @ApiTags('User')
 @ApiBearerAuth()
 export class UserController {
   constructor(private readonly usersService: UserService) {}
+
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  getProfile(@UserId() id: number) {
+    return this.usersService.profile(id);
+  }
+
+  @ApiBody({ type: UpdateUserDto })
+  @Patch()
+  @UseGuards(JwtAuthGuard)
+  update(@UserId() id: number, @Body() dto: UpdateUserDto) {
+    return this.update(id, dto);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  delete(@UserId() id: number) {
+    return this.usersService.delete(id);
+  }
 
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
@@ -42,11 +61,5 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   deleteAvatar(@UserId() id: number) {
     return this.usersService.deleteAvatar(id);
-  }
-
-  @Delete(':id')
-  @UseGuards(JwtAuthGuard)
-  delete(@UserId() id: number) {
-    return this.usersService.delete(id);
   }
 }

@@ -21,13 +21,28 @@ export class UserService {
     return await this.prisma.user.findUnique({ where: { id } });
   }
 
+  async profile(id: number) {
+    const { password, ...profile } = await this.prisma.user.findUnique({
+      where: { id },
+    });
+
+    return profile;
+  }
+
   async create(dto: CreateUserDto) {
     const isExistName = await this.prisma.user.findUnique({
       where: { username: dto.username.toLowerCase() },
     });
 
+    const isExistEmail = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
     if (isExistName)
       throw new BadRequestException('Данный логин уже зарегестрирован');
+
+    if (isExistEmail)
+      throw new BadRequestException('Данный Email уже зарегестрирован');
 
     const role = dto.username === 'admin' ? 'admin' : 'user';
 
@@ -40,6 +55,10 @@ export class UserService {
     });
 
     return { user };
+  }
+
+  async update(id: number, dto: UpdateUserDto) {
+    return this.prisma.user.update({ where: { id }, data: { ...dto } });
   }
 
   async uploadAvatar(id: number, file: Express.Multer.File) {
