@@ -6,4 +6,12 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   @ApiProperty()
   @IsOptional()
   about?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  isOnline?: boolean;
+
+  @ApiProperty()
+  @IsOptional()
+  onlineAt?: Date;
 }

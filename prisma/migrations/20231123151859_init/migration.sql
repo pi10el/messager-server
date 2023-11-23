@@ -12,7 +12,6 @@ CREATE TABLE "users" (
     "role" "UserRole" NOT NULL DEFAULT 'user',
     "about" VARCHAR,
     "password" VARCHAR NOT NULL,
-    "is_online" BOOLEAN NOT NULL DEFAULT false,
     "online_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 

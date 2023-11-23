@@ -22,8 +22,18 @@ export class UserService {
   }
 
   async profile(id: number) {
-    const { password, ...profile } = await this.prisma.user.findUnique({
+    const profile = await this.prisma.user.findUnique({
       where: { id },
+      select: {
+        id: true,
+        about: true,
+        email: true,
+        username: true,
+        role: true,
+        avatar: {
+          select: { src: true, blur: true },
+        },
+      },
     });
 
     return profile;
