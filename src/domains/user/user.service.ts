@@ -82,20 +82,17 @@ export class UserService {
 
     const image = await this.imageService.upload(file);
 
-    return this.prisma.user
-      .update({
-        where: { id },
-        data: {
-          avatar: {
-            upsert: {
-              update: { ...image },
-              create: { ...image },
-            },
+    return this.prisma.user.update({
+      where: { id },
+      data: {
+        avatar: {
+          upsert: {
+            update: { ...image },
+            create: { ...image },
           },
         },
-      })
-      .then(() => ({ message: 'Фото профиля добавлено' }))
-      .catch((e) => ({ error: 'Что-то пошло не так' }));
+      },
+    });
   }
 
   async deleteAvatar(id: number) {

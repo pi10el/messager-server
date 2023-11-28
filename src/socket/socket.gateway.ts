@@ -14,6 +14,7 @@ import { Server, Socket } from 'socket.io';
 import { UserService } from 'src/domains/user/user.service';
 import * as jwt from 'jsonwebtoken';
 import { WsUser } from 'src/common/decorators/ws-user.decorator';
+import { UpdateUserDto } from 'src/domains/user/dto/update-user.dto';
 
 interface WsUser {
   id: number;
@@ -41,6 +42,7 @@ export class SocketGateway
       const token = client.handshake.auth.token;
       const { id }: any = jwt.verify(token, process.env.JWT_SECRET);
       const user = await this.userService.findById(id);
+
       if (!user) client.disconnect();
     } catch (err) {
       client.disconnect();
@@ -55,9 +57,24 @@ export class SocketGateway
     this.userService.update(user.id, { onlineAt: new Date(Date.now()) });
   }
 
-  @SubscribeMessage('profile')
-  async profile(@WsUser() user: WsUser) {
-    return this.userService.profile(user.id);
+  @SubscribeMessage('profile:get')
+  async profile(@ConnectedSocket() client: Socket, @WsUser() user: WsUser) {
+    const profile = await this.userService.profile(user.id);
+    client.emit('profile:client', profile);
+  }
+
+  @SubscribeMessage('profile:update')
+  async update(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: UpdateUserDto,
+    @WsUser() user: WsUser,
+  ) {
+    const profile = await this.userService.update(user.id, data);
+    client.emit('profile:client', profile);
+    client.emit('alerts', {
+      status: true,
+      message: 'Данные профиля обновлены',
+    });
   }
 
   @SubscribeMessage('msgToServer')
