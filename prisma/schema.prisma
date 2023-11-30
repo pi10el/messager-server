@@ -11,6 +11,7 @@ enum UserRole {
   admin
   user
   editor
+  test
 }
 
 enum MessageStatus {
@@ -37,7 +38,7 @@ model User {
 model Avatar {
   src                      String             @db.VarChar()
   blur                     String             @db.VarChar()
-  user                     User               @relation(fields: [userId], references: [id])
+  user                     User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId                   Int                @db.Integer @unique
 
   @@map("avatars")
@@ -56,9 +57,9 @@ model Message {
   id                       Int                @id @default(autoincrement())
   text                     String             @db.VarChar()
   status                   MessageStatus      @default(shipped)
-  user                     User               @relation(fields: [userId], references: [id])
+  user                     User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId                   Int                @db.Integer @map("user_id")
-  room                     Room               @relation(fields: [roomId], references: [id])
+  room                     Room               @relation(fields: [roomId], references: [id], onDelete: Cascade)
   roomId                   Int                @db.Integer @map("room_id")
   createdAt                DateTime           @default(now()) @db.Timestamp(6) @map("created_at")
 
@@ -66,9 +67,9 @@ model Message {
 }
 
 model UserRoom {
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int @db.Integer @map("user_id")
-  room Room @relation(fields: [roomId], references: [id])
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
   roomId Int @db.Integer @map("room_id")
 
   @@id([userId, roomId])

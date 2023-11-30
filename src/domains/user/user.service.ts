@@ -5,6 +5,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/common/database/prisma.service';
 import { ImageService } from '../image/image.service';
 import * as argon2 from 'argon2';
+import { UploadAvatarDto } from 'src/socket/dto/upload-avatar.dto';
+import { generateUniqueString } from 'src/common/utils/generateUniqueString';
 
 @Injectable()
 export class UserService {
@@ -68,10 +70,14 @@ export class UserService {
   }
 
   async update(id: number, dto: UpdateUserDto) {
-    return this.prisma.user.update({ where: { id }, data: { ...dto } });
+    return this.prisma.user.update({
+      where: { id },
+      include: { avatar: true },
+      data: { ...dto },
+    });
   }
 
-  async uploadAvatar(id: number, file: Express.Multer.File) {
+  async uploadAvatar(id: number, data: UploadAvatarDto) {
     const isExist = await this.prisma.avatar.findFirst({
       where: { userId: id },
     });
@@ -80,10 +86,13 @@ export class UserService {
       this.imageService.delete(isExist.src);
     }
 
-    const image = await this.imageService.upload(file);
+    const image = await this.imageService.upload(data);
 
     return this.prisma.user.update({
       where: { id },
+      include: {
+        avatar: true,
+      },
       data: {
         avatar: {
           upsert: {
@@ -110,5 +119,22 @@ export class UserService {
 
   async delete(id: number) {
     await this.prisma.user.delete({ where: { id } });
+  }
+
+  async createTestProfile() {
+    const username = generateUniqueString();
+
+    await this.prisma.user.create({
+      data: {
+        username,
+        email: username + '@test.ru',
+        password: '0000000000',
+        about: 'Тестовый аккаунт',
+      },
+    });
+  }
+
+  async deleteTestProfiles() {
+    await this.prisma.user.deleteMany({ where: { role: 'test' } });
   }
 }

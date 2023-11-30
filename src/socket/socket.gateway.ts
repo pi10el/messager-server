@@ -15,6 +15,7 @@ import { UserService } from 'src/domains/user/user.service';
 import * as jwt from 'jsonwebtoken';
 import { WsUser } from 'src/common/decorators/ws-user.decorator';
 import { UpdateUserDto } from 'src/domains/user/dto/update-user.dto';
+import { UploadAvatarDto } from './dto/upload-avatar.dto';
 
 interface WsUser {
   id: number;
@@ -64,7 +65,7 @@ export class SocketGateway
   }
 
   @SubscribeMessage('profile:update')
-  async update(
+  async profileUpdate(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: UpdateUserDto,
     @WsUser() user: WsUser,
@@ -74,6 +75,20 @@ export class SocketGateway
     client.emit('alerts', {
       status: true,
       message: 'Данные профиля обновлены',
+    });
+  }
+
+  @SubscribeMessage('avatar:update')
+  async avatarUpdate(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: UploadAvatarDto,
+    @WsUser() user: WsUser,
+  ) {
+    const profile = await this.userService.uploadAvatar(user.id, data);
+    client.emit('profile:client', profile);
+    client.emit('alerts', {
+      status: true,
+      message: 'Изображение загруженно',
     });
   }
 

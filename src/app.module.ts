@@ -6,6 +6,7 @@ import { UserModule } from './domains/user/user.module';
 import { AuthModule } from './domains/auth/auth.module';
 import { ImageModule } from './domains/image/image.module';
 import { SocketGateway } from './socket/socket.gateway';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -15,8 +16,8 @@ import { SocketGateway } from './socket/socket.gateway';
     AuthModule,
     ConfigModule.forRoot({ isGlobal: true }),
     MulterModule.register({ dest: './uploads' }),
+    ScheduleModule.forRoot(),
   ],
-  controllers: [],
   providers: [SocketGateway],
 })
 export class AppModule {}

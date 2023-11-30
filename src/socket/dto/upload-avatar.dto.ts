@@ -2,7 +2,11 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 
 export class UploadAvatarDto {
-  @ApiProperty({ type: 'string', format: 'binary' })
+  @ApiProperty()
   @IsNotEmpty()
-  image: Express.Multer.File;
+  ext: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  image: Buffer;
 }

@@ -4,18 +4,12 @@ import {
   Delete,
   Get,
   Patch,
-  Post,
-  UploadedFile,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { UploadAvatarDto } from './dto/upload-avatar.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UserId } from 'src/common/decorators/user-id.decorator';
-import { fileStorage } from '../image/storage';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('user')
@@ -41,20 +35,6 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   delete(@UserId() id: number) {
     return this.usersService.delete(id);
-  }
-
-  @ApiConsumes('multipart/form-data')
-  @UseInterceptors(
-    FileInterceptor('image', { storage: fileStorage('avatars') }),
-  )
-  @ApiBody({ type: UploadAvatarDto })
-  @Post('avatar')
-  @UseGuards(JwtAuthGuard)
-  uploadAvatar(
-    @UploadedFile() image: Express.Multer.File,
-    @UserId() id: number,
-  ) {
-    return this.usersService.uploadAvatar(id, image);
   }
 
   @Delete('avatar')
